@@ -1,18 +1,17 @@
 #!/usr/bin/env bash
-# Docker və standart mühitlərdə hosts faylını təhlükəsiz şəkildə yeniləyir
+# Docker mühitinə uyğun və shellcheck standartlarında hosts faylını yeniləyir
 
-# 1. localhost hissəsini dəyişirik (sed-in nəticəsini birbaşa hosts faylına yazırıq)
-# Burada '-i' istifadə etmirik, kontenti oxuyub üzərinə yazırıq (tee vasitəsilə)
-cat /etc/hosts | sed 's/127.0.0.1\tlocalhost/127.0.0.2\tlocalhost/g' | sed 's/127.0.0.1 localhost/127.0.0.2 localhost/g' > /etc/hosts.tmp
+# 1. localhost hissəsini dəyişirik (cat yoxdur, sed faylı birbaşa oxuyur)
+sed 's/127.0.0.1\tlocalhost/127.0.0.2\tlocalhost/g' /etc/hosts | sed 's/127.0.0.1 localhost/127.0.0.2 localhost/g' > /etc/hosts.tmp
 mv /etc/hosts.tmp /etc/hosts 2>/dev/null || cat /etc/hosts.tmp > /etc/hosts
 
 # 2. facebook.com hissəsini tənzimləyirik
 if grep -q "facebook.com" /etc/hosts; then
-    cat /etc/hosts | sed 's/.*facebook.com/8.8.8.8 facebook.com/g' > /etc/hosts.tmp
+    sed 's/.*facebook.com/8.8.8.8 facebook.com/g' /etc/hosts > /etc/hosts.tmp
     cat /etc/hosts.tmp > /etc/hosts
 else
     echo "8.8.8.8 facebook.com" >> /etc/hosts
 fi
 
-# Müvəqqəti faylı silirik
+# Müvəqqəti faylı təmizləyirik
 rm -f /etc/hosts.tmp
