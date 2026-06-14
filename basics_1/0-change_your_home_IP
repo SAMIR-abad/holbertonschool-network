@@ -1,17 +1,19 @@
 #!/usr/bin/env bash
-# Docker mühitinə uyğun və shellcheck standartlarında hosts faylını yeniləyir
+# Docker mühitində icazə və mount qorunmalarını nəzərə alaraq hosts faylını yeniləyir
 
-# 1. localhost hissəsini dəyişirik (cat yoxdur, sed faylı birbaşa oxuyur)
-sed 's/127.0.0.1\tlocalhost/127.0.0.2\tlocalhost/g' /etc/hosts | sed 's/127.0.0.1 localhost/127.0.0.2 localhost/g' > /etc/hosts.tmp
-mv /etc/hosts.tmp /etc/hosts 2>/dev/null || cat /etc/hosts.tmp > /etc/hosts
+# 1. localhost hissəsini dəyişirik
+sed 's/127.0.0.1\tlocalhost/127.0.0.2\tlocalhost/g' /etc/hosts | sed 's/127.0.0.1 localhost/127.0.0.2 localhost/g' > /tmp/hosts.tmp
 
 # 2. facebook.com hissəsini tənzimləyirik
-if grep -q "facebook.com" /etc/hosts; then
-    sed 's/.*facebook.com/8.8.8.8 facebook.com/g' /etc/hosts > /etc/hosts.tmp
-    cat /etc/hosts.tmp > /etc/hosts
+if grep -q "facebook.com" /tmp/hosts.tmp; then
+    sed 's/.*facebook.com/8.8.8.8 facebook.com/g' /tmp/hosts.tmp > /tmp/hosts.tmp2
+    mv /tmp/hosts.tmp2 /tmp/hosts.tmp
 else
-    echo "8.8.8.8 facebook.com" >> /etc/hosts
+    echo "8.8.8.8 facebook.com" >> /tmp/hosts.tmp
 fi
 
-# Müvəqqəti faylı təmizləyirik
-rm -f /etc/hosts.tmp
+# 3. Hazır sənədi /etc/hosts faylına kopyalayırıq (Docker mount xətasını tam bypass edir)
+cp /tmp/hosts.tmp /etc/hosts 2>/dev/null || cat /tmp/hosts.tmp > /etc/hosts
+
+# Müvəqqəti faylı silirik
+rm -f /tmp/hosts.tmp
