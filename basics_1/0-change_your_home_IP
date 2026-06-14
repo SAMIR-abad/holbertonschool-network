@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
-# Configures an Ubuntu server so that:
-#   - localhost resolves to 127.0.0.2
-#   - facebook.com resolves to 8.8.8.8
+# Ubuntu serverində localhost və facebook.com domenlərinin IP ünvanlarını dəyişir
 
-# Update localhost: replace 127.0.0.1 with 127.0.0.2
-sed -i 's/^127\.0\.0\.1[[:space:]]\+localhost/127.0.0.2\tlocalhost/' /etc/hosts
+# 1. localhost-u 127.0.0.1-dən 127.0.0.2-yə dəyişirik
+sed -i 's/127.0.0.1\tlocalhost/127.0.0.2\tlocalhost/g' /etc/hosts
+sed -i 's/127.0.0.1 localhost/127.0.0.2 localhost/g' /etc/hosts
 
-# Add or update facebook.com entry
-if grep -qE '^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+[[:space:]]+facebook\.com' /etc/hosts; then
-    sed -i 's/^[0-9.]\+[[:space:]]\+facebook\.com.*/8.8.8.8\tfacebook.com/' /etc/hosts
+# 2. facebook.com domenini 8.8.8.8 IP-sinə yönləndiririk
+# Əgər əvvəldən faylda varsa yeniləyirik, yoxdursa sonuna əlavə edirik
+if grep -q "facebook.com" /etc/hosts; then
+    sed -i 's/.*facebook.com/8.8.8.8 facebook.com/g' /etc/hosts
 else
-    echo -e "8.8.8.8\tfacebook.com" >> /etc/hosts
+    echo "8.8.8.8 facebook.com" >> /etc/hosts
 fi
